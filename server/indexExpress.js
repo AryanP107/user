@@ -1,25 +1,35 @@
-// Comments are the syntax for es6 
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// const express = require('express');
 const app = express();
-// const PORT = 3000;
-const PORT = process.env.PORT;
 
+const PORT = process.env.PORT;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename) 
 
-app.get("/",(req,res)=>{
-    // res.sendFile(__dirname + "/views/index.html");
-    res.sendFile(path.join(__dirname,"views","index.html"))
-})
+app.use((req,res,next) => {
+    const secretCode = req.query.secret;
+    if(secretCode === '1234'){
+        req.istrue = true;
+    }
+    else{
+        req.istrue = false;
+    }
+    next();
+});
 
-// app.use(express.static(__dirname + "/views/"));
+app.get("/", (req,res)=>{
+    if(req.istrue){
+        res.sendFile(path.join(__dirname,"views","index.html"));
+    }
+    else{
+        res.send("Unauthorized");
+    }
+})
 app.use(express.static(path.join(__dirname, "views")));
 
 app.listen(PORT, ()=>{
